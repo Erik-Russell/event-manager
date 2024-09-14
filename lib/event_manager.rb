@@ -2,6 +2,7 @@
 
 require 'csv'
 require 'google/apis/civicinfo_v2'
+require 'erb'
 
 def clean_zipcode(zipcode)
   # handle nil value with #to_s
@@ -30,14 +31,18 @@ end
 
 puts ' **EventManager Initialized!**'
 
-file_path = 'event_attendees.csv'
+attendee_list_file = 'event_attendees.csv'
+template_letter_file = 'form_letter.html'
 
 begin
   contents = CSV.open(
-    file_path,
+    attendee_list_file,
     headers: true,
     header_converters: :symbol
   )
+
+  template_letter = File.read(template_letter_file)
+
   contents.each do |row|
     name = row[:first_name]
 
@@ -45,7 +50,10 @@ begin
 
     legislators = legislators_by_zipcode(zipcode)
 
-    puts "#{name} #{zipcode} #{legislators}"
+    personal_letter = template_letter.gsub('FIRST_NAME', name)
+    personal_letter.gsub!('LEGISLATORS', legislators)
+
+    puts personal_letter
   end
 rescue Errno::ENOENT
   puts 'ERROR => File does not exist.'
