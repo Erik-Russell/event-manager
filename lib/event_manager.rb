@@ -4,7 +4,7 @@ require 'csv'
 require 'google/apis/civicinfo_v2'
 
 civic_info = Google::Apis::CivicinfoV2::CivicInfoService.new
-civic_info.key = File.read('secret_key').strip
+civic_info.key = File.read('secret_file').strip
 
 def clean_zipcode(zipcode)
   # handle nil value with #to_s
