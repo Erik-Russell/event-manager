@@ -3,6 +3,7 @@
 require 'csv'
 require 'google/apis/civicinfo_v2'
 require 'erb'
+require 'time'
 
 def clean_zipcode(zipcode)
   # handle nil value with #to_s
@@ -36,6 +37,14 @@ def save_thank_you_letter(id, form_letter)
   end
 end
 
+def hour_of_registration(date)
+  Time.strptime(date, '%m/%d/%y %R').hour
+end
+
+def day_of_registration(date)
+  Date::DAYNAMES[Time.strptime(date, '%m/%d/%y %R').wday]
+end
+
 puts ' **EventManager Initialized!**'
 
 attendee_list_file = 'event_attendees.csv'
@@ -62,6 +71,12 @@ begin
     form_letter = erb_template.result(binding)
 
     save_thank_you_letter(id, form_letter)
+
+    hour = hour_of_registration(row[:regdate])
+
+    day_of_week = day_of_registration(row[:regdate])
+
+    puts "#{name} reg on #{day_of_week} at #{hour}:00"
 
     puts "file #{id} complete"
   end
