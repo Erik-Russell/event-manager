@@ -26,6 +26,16 @@ def legislators_by_zipcode(zip)
   end
 end
 
+def save_thank_you_letter(id, form_letter)
+  Dir.mkdir('output') unless Dir.exist?('output')
+
+  filename = "output/thanks_#{id}.html"
+
+  File.open(filename, 'w') do |file|
+    file.puts form_letter
+  end
+end
+
 puts ' **EventManager Initialized!**'
 
 attendee_list_file = 'event_attendees.csv'
@@ -42,7 +52,7 @@ begin
   erb_template = ERB.new template_letter
 
   contents.each do |row|
-    id = row[0]
+    id = row[0].to_s.rjust(2, '0')
     name = row[:first_name]
 
     zipcode = clean_zipcode(row[:zipcode])
@@ -51,13 +61,7 @@ begin
 
     form_letter = erb_template.result(binding)
 
-    Dir.mkdir('output') unless Dir.exist?('output')
-
-    filename = "output/thanks_#{id}.html"
-
-    File.open(filename, 'w') do |file|
-      file.puts form_letter
-    end
+    save_thank_you_letter(id, form_letter)
 
     puts "file #{id} complete"
   end
